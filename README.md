@@ -36,8 +36,8 @@
 
 所用技术栈：
 
-- Electron 15
-- Vue 2
+- Electron 15+
+- Vue 3
 
 已支持的平台：
 
@@ -48,53 +48,72 @@
 软件变化请查看：[更新日志](https://github.com/lyswhut/lx-music-desktop/blob/master/CHANGELOG.md)<br>
 软件下载请转到：[发布页面](https://github.com/lyswhut/lx-music-desktop/releases)<br>
 或者到网盘下载（网盘内有MAC、windows版）：`https://www.lanzoui.com/b0bf2cfa/` 密码：`glqw`（若链接无法打开请百度：蓝奏云链接打不开）<br>
-使用常见问题请转至：[常见问题](https://github.com/lyswhut/lx-music-desktop/blob/master/FAQ.md)
+使用常见问题请转至：[常见问题](https://lyswhut.github.io/lx-music-doc/desktop/faq)
+
+目前本项目的原始发布地址只有**GitHub**及**蓝奏网盘**，其他渠道均为第三方转载发布，与本项目无关！
+
+为了提高使用门槛，本软件内的默认设置、UI操作不以新手友好为目标，所以使用前建议先根据你的喜好浏览调整一遍软件设置，阅读一遍[音乐播放列表机制](https://lyswhut.github.io/lx-music-doc/desktop/faq/playlist)及[可用的鼠标、键盘快捷操作](https://lyswhut.github.io/lx-music-doc/desktop/faq/hotkey)
+
+#### Scheme URL支持
+
+从v1.17.0起支持 Scheme URL，可以使用此功能从浏览器等场景下调用LX Music，我们开发了一个[油猴脚本](https://github.com/lyswhut/lx-music-script#readme)配套使用，<br>
+脚本安装地址：<https://greasyfork.org/zh-CN/scripts/438148><br>
+
+若你想自己调用LX Music，可以看[Scheme URL支持](https://lyswhut.github.io/lx-music-doc/desktop/scheme-url)
+
+#### 数据同步服务
+
+从v2.2.0起，我们发布了一个独立版的[数据同步服务](https://github.com/lyswhut/lx-music-sync-server#readme)，如果你有服务器，可以将其部署到服务器上作为私人多端同步服务使用，详情看该项目说明
+
+#### 启动参数
+
+目前软件已支持的启动参数如下：
+
+- `-proxy-server` 设置代理服务器，代理应用的所有流量
+- `-proxy-bypass-list` 以分号分隔的主机列表绕过代理服务器
+- `-play` 启动时播放指定列表的音乐
+- `-search`  启动软件时自动在搜索框搜索指定的内容
+- `-dha`  禁用硬件加速启动（Disable Hardware Acceleration）
+- `-dt` 以非透明模式启动（Disable Transparent）
+- `-dhmkh` 禁用硬件媒体密钥处理（Disable Hardware Media Key Handling）
+
+启动参数的详细说明请看[启动参数说明](https://lyswhut.github.io/lx-music-doc/desktop/run-params)
+
+#### 数据存储路径
+
+默认情况下，软件的数据存储在：
+
+- Windows：`%APPDATA%/lx-music-desktop`
+- Linux：`$XDG_CONFIG_HOME/lx-music-desktop` 或 `~/.config/lx-music-desktop`
+- macOS：`~/Library/Application Support/lx-music-desktop`
+
+在Windows平台下，若程序目录下存在`portable`目录，则自动使用此目录作为数据存储目录（v1.17.0新增）。
 
 ### 源码使用方法
 
-环境要求：Node.js 14+
-
-```bash
-# 开发模式
-npm run dev
-
-# 构建免安装版
-npm run pack:dir
-
-# 构建安装包（Windows版）
-npm run pack:win
-
-# 构建安装包（Mac版）
-npm run pack:mac
-
-# 构建安装包（Linux版）
-npm run pack:linux
-
-```
+已迁移至：<https://lyswhut.github.io/lx-music-doc/desktop/use-source-code>
 
 ### UI界面
 
 <p><a href="https://github.com/lyswhut/lx-music-desktop"><img width="100%" src="https://github.com/lyswhut/lx-music-desktop/blob/master/doc/images/app.png" alt="lx-music UI"></a></p>
 
-### 启动参数
-
-目前软件已支持的启动参数如下：
-
-- `-search`  启动软件时自动在搜索框搜索指定的内容，例如：`-search="突然的自我 - 伍佰"`
-- `-dha`  禁用硬件加速启动（Disable Hardware Acceleration），窗口显示有问题时可以尝试添加此参数启动（v1.6.0起新增）
-- `-dt` 以非透明模式启动（Disable Transparent），对于未开启AERO效果的win7系统可加此参数启动以确保界面正常显示（注：该参数对桌面歌词无效），原来的`-nt`参数已重命名为`-dt`（v1.6.0起重命名）
-- `-dhmkh` 禁用硬件媒体密钥处理（Disable Hardware Media Key Handling），此选项将禁用Chromium的Hardware Media Key Handling特性（v1.9.0起新增）
-- `-play` 启动时播放指定列表的音乐，参数说明：
-  - `type`：播放类型，目前固定为`songList`
-  - `source`：播放源，可用值为`kw/kg/tx/wy/mg/myList`，其中`kw/kg/tx/wy/mg`对应各源的在线列表，`myList`为本地列表
-  - `link`：要播放的在线列表歌单链接、或ID，source为`kw/kg/tx/wy/mg`之一（在线列表）时必传，举例：`./lx-music-desktop -play="type=songList&source=kw&link=歌单URL or ID"`，注意：如果传入URL时必须对URL进行编码后再传入
-  - `name`：要播放的本地列表歌单名字，source为`myList`时必传，举例：`./lx-music-desktop -play="type=songList&source=myList&name=默认列表"`
-  - `index`：从列表的哪个位置开始播放，选传，若不传默认播放第一首歌曲，举例：`./lx-music-desktop -play="type=songList&source=myList&name=默认列表&index=2"`
-
-
 ### 常见问题
 
-常见问题已移至：<https://github.com/lyswhut/lx-music-desktop/blob/master/FAQ.md>
+常见问题已移至：<https://lyswhut.github.io/lx-music-doc/desktop/faq>
+
+### 贡献代码
+
+本项目欢迎PR，但为了PR能顺利合并，需要注意以下几点：
+
+- 对于添加新功能的PR，建议在PR前先创建issue说明，以确认该功能是否确实需要
+- 对于修复Bug PR，请提供修复前后的说明及重现方式
+- 其他类型的PR则适当附上说明
+
+贡献代码步骤：
+
+1. 参照[源码使用方法](https://lyswhut.github.io/lx-music-doc/desktop/use-source-code)设置开发环境
+2. 克隆本仓库代码并切换到`dev`分支开发
+3. 提交PR至`dev`分支
 
 ### 项目协议
 
@@ -112,4 +131,5 @@ npm run pack:linux
 若你使用了本项目，将代表你接受以上协议。
 
 音乐平台不易，请尊重版权，支持正版。<br>
-若对此有疑问请 mail to: lyswhut+qq.com (请将`+`替换成`@`)
+本项目仅用于对技术可行性的探索及研究，不接受任何商业（包括但不限于广告等）合作及捐赠。<br>
+若对此有疑问请 mail to: lyswhut+qq.com (请将`+`替换成`@`)<br>
