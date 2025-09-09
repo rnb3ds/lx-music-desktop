@@ -10,6 +10,7 @@ const afterPack = require('./build-after-pack')
 */
 const options = {
   appId: 'cn.toside.music.desktop',
+  productName: 'lx-music-desktop',
   beforePack,
   afterPack,
   protocols: {
@@ -65,7 +66,7 @@ const winOptions = {
     oneClick: false,
     language: '2052',
     allowToChangeInstallationDirectory: true,
-    differentialPackage: true,
+    // differentialPackage: true,
     license: './licenses/license.rtf',
     shortcutName: 'LX Music',
   },
@@ -81,12 +82,18 @@ const linuxOptions = {
     icon: './resources/icons',
     category: 'Utility;AudioVideo;Audio;Player;Music;',
     desktop: {
-      Name: 'LX Music',
-      'Name[zh_CN]': 'LX Music',
-      'Name[zh_TW]': 'LX Music',
-      Encoding: 'UTF-8',
-      MimeType: 'x-scheme-handler/lxmusic',
-      StartupNotify: 'false',
+      // https://www.electron.build/app-builder-lib.interface.linuxdesktopfile
+      // https://www.electronjs.org/docs/latest/tutorial/linux-desktop-actions
+      // https://specifications.freedesktop.org/desktop-entry-spec/latest/example.html
+      // https://developer.gnome.org/documentation/guidelines/maintainer/integrating.html#desktop-files
+      entry: {
+        Name: 'LX Music',
+        'Name[zh_CN]': 'LX Music',
+        'Name[zh_TW]': 'LX Music',
+        Encoding: 'UTF-8',
+        MimeType: 'x-scheme-handler/lxmusic',
+        StartupNotify: 'false',
+      },
     },
   },
   appImage: {
@@ -106,23 +113,22 @@ const macOptions = {
   },
   dmg: {
     window: {
-      width: 600,
-      height: 400,
+      width: 530,
+      height: 380,
     },
     contents: [
       {
-        x: 106,
-        y: 252,
-        name: 'LX Music',
+        x: 140,
+        y: 200,
       },
       {
-        x: 490,
-        y: 252,
+        x: 390,
+        y: 200,
         type: 'link',
         path: '/Applications',
       },
     ],
-    title: '洛雪音乐助手 v${version}',
+    title: 'LX Music v${version}',
   },
 }
 
@@ -177,6 +183,12 @@ const createTarget = {
         winOptions.artifactName = `\${productName}-v\${version}-win_${arch}-green.\${ext}`
         return {
           buildOptions: { win: ['7z'] },
+          options: winOptions,
+        }
+      case 'win7_setup':
+        winOptions.artifactName = `\${productName}-v\${version}-win7_${arch}-Setup.\${ext}`
+        return {
+          buildOptions: { win: ['nsis'] },
           options: winOptions,
         }
       case 'win7_green':

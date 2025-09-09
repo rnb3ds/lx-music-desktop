@@ -2,7 +2,7 @@ import { LIST_IDS } from '@common/constants'
 import { arrPush, arrPushByPosition, arrUnshift } from '@common/utils/common'
 import {
   deleteUserLists,
-  inertUserLists,
+  insertUserLists,
   insertMusicInfoList,
   insertMusicInfoListAndRefreshOrder,
   moveMusicInfo,
@@ -61,7 +61,7 @@ export const createUserLists = (position: number, lists: LX.List.UserListInfo[])
         position: position + index,
       }
     })
-    inertUserLists(newLists)
+    insertUserLists(newLists)
     userLists = [...userLists, ...newLists]
   } else {
     const newUserLists = [...userLists]
@@ -70,7 +70,7 @@ export const createUserLists = (position: number, lists: LX.List.UserListInfo[])
     newUserLists.forEach((list, index) => {
       list.position = index
     })
-    inertUserLists(newUserLists, true)
+    insertUserLists(newUserLists, true)
     userLists = newUserLists
   }
 }
@@ -79,16 +79,16 @@ export const createUserLists = (position: number, lists: LX.List.UserListInfo[])
  * 覆盖列表
  * @param lists 列表信息
  */
-export const setUserLists = (lists: LX.List.UserListInfo[]) => {
-  const newUserLists: LX.DBService.UserListInfo[] = lists.map((list, index) => {
-    return {
-      ...list,
-      position: index,
-    }
-  })
-  inertUserLists(newUserLists, true)
-  userLists = newUserLists
-}
+// const setUserLists = (lists: LX.List.UserListInfo[]) => {
+//   const newUserLists: LX.DBService.UserListInfo[] = lists.map((list, index) => {
+//     return {
+//       ...list,
+//       position: index,
+//     }
+//   })
+//   insertUserLists(newUserLists, true)
+//   userLists = newUserLists
+// }
 
 /**
  * 批量删除列表
@@ -145,7 +145,7 @@ export const updateUserListsPosition = (position: number, ids: string[]) => {
   newUserLists.forEach((list, index) => {
     list.position = index
   })
-  inertUserLists(newUserLists, true)
+  insertUserLists(newUserLists, true)
   userLists = newUserLists
 }
 
@@ -322,7 +322,7 @@ export const musicsPositionUpdate = (listId: string, position: number, ids: stri
   const map = new Map<string, LX.Music.MusicInfo>()
   for (const item of newTargetList) map.set(item.id, item)
   for (const id of ids) {
-    infos.push(map.get(id) as LX.Music.MusicInfo)
+    infos.push(map.get(id)!)
     map.delete(id)
   }
   newTargetList = newTargetList.filter(mInfo => map.has(mInfo.id))

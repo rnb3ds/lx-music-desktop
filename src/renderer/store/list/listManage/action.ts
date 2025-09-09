@@ -166,8 +166,8 @@ export const userListsRemove = (ids: string[]) => {
   const changedIds = []
   for (const id of ids) {
     removeUserList(id)
-    removeListPosition(id)
-    removeListUpdateInfo(id)
+    void removeListPosition(id)
+    void removeListUpdateInfo(id)
     if (!allMusicList.has(id)) continue
     removeMusicList(id)
     changedIds.push(id)
@@ -193,7 +193,7 @@ export const userListsUpdatePosition = (position: number, ids: string[]) => {
   const map = new Map<string, LX.List.UserListInfo>()
   for (const item of newUserLists) map.set(item.id, item)
   for (const id of ids) {
-    const listInfo = map.get(id) as LX.List.UserListInfo
+    const listInfo = map.get(id)!
     listInfo.locationUpdateTime = Date.now()
     updateLists.push(listInfo)
     map.delete(id)

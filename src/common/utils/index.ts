@@ -1,10 +1,18 @@
-import log from 'electron-log'
+import log from 'electron-log/node'
 
 
 export const isLinux = process.platform == 'linux'
 export const isWin = process.platform == 'win32'
 export const isMac = process.platform == 'darwin'
 export const isProd = process.env.NODE_ENV == 'production'
+
+export const getPlatform = (platform: NodeJS.Platform = process.platform) => {
+  switch (platform) {
+    case 'win32': return 'windows'
+    case 'darwin': return 'mac'
+    default: return 'linux'
+  }
+}
 
 
 // https://stackoverflow.com/a/53387532

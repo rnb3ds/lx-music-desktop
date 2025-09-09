@@ -1,6 +1,6 @@
 import {
   queryMusicInfo,
-  inertMusicInfo,
+  insertMusicInfo,
   deleteMusicInfo,
   clearMusicInfo,
   countMusicInfo,
@@ -24,7 +24,7 @@ const toDBMusicInfo = (id: string, musicInfos: LX.Music.MusicInfo[]): LX.DBServi
  * @returns 歌词信息
  */
 export const getMusicInfoOtherSource = (id: string): LX.Music.MusicInfoOnline[] => {
-  const list = queryMusicInfo(id).map(info => {
+  const list = queryMusicInfo(id).sort((a, b) => a.order - b.order).map(info => {
     return {
       id: info.id,
       name: info.name,
@@ -44,7 +44,7 @@ export const getMusicInfoOtherSource = (id: string): LX.Music.MusicInfoOnline[] 
  * @param musicInfos 歌词信息
  */
 export const musicInfoOtherSourceAdd = (id: string, musicInfos: LX.Music.MusicInfoOnline[]) => {
-  inertMusicInfo(toDBMusicInfo(id, musicInfos))
+  insertMusicInfo(toDBMusicInfo(id, musicInfos))
 }
 
 /**

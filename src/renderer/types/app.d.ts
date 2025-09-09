@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 import { type AppEventTypes, type KeyEventTypes } from '@renderer/event'
 import { type MainTypes, type DownloadTypes } from '@renderer/worker/utils'
 import { type I18n } from '@renderer/plugins/i18n'
@@ -27,6 +28,7 @@ interface Lx {
     songlistPosition?: number
   }
   rootOffset: number
+  apiInitPromise: [Promise<boolean>, boolean, (success: boolean) => void]
 }
 
 declare global {
@@ -42,6 +44,7 @@ declare global {
     lxData: any
 
     setTheme: (colors: Record<string, string>) => void
+    setLang: (lang?: string) => void
   }
 
   module NodeJS {
@@ -92,6 +95,9 @@ declare global {
       lx_handled?: boolean
     }
   }
+
+  var COMMIT_ID: string
+  var COMMIT_DATE: string
 }
 
 

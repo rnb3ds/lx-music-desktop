@@ -414,6 +414,28 @@ export default {
     })
   },
 
+  async decodeGcid(gcid) {
+    const params = 'dfid=-&appid=1005&mid=0&clientver=20109&clienttime=640612895&uuid=-'
+    const body = {
+      ret_info: 1,
+      data: [
+        {
+          id: gcid,
+          id_type: 2,
+        },
+      ],
+    }
+    const result = await this.createHttp(`https://t.kugou.com/v1/songlist/batch_decode?${params}&signature=${signatureParams(params, 'android', JSON.stringify(body))}`, {
+      method: 'POST',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; HUAWEI HMA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Mobile Safari/537.36',
+        Referer: 'https://m.kugou.com/',
+      },
+      body,
+    })
+    return result.list[0].global_collection_id
+  },
+
   async getUserListDetailByLink({ info }, link) {
     let listInfo = info['0']
     let total = listInfo.count
@@ -456,7 +478,7 @@ export default {
       total -= limit
       page += 1
       const params = 'appid=1058&global_specialid=' + id + '&specialid=0&plat=0&version=8000&page=' + page + '&pagesize=' + limit + '&srcappid=2919&clientver=20000&clienttime=1586163263991&mid=1586163263991&uuid=1586163263991&dfid=-'
-      tasks.push(this.createHttp(`https://mobiles.kugou.com/api/v5/special/song_v2?${params}&signature=${signatureParams(params, 5)}`, {
+      tasks.push(this.createHttp(`https://mobiles.kugou.com/api/v5/special/song_v2?${params}&signature=${signatureParams(params, 'web')}`, {
         headers: {
           mid: '1586163263991',
           Referer: 'https://m3ws.kugou.com/share/index.php',
@@ -472,7 +494,7 @@ export default {
     let id = global_collection_id
     if (id.length > 1000) throw new Error('get list error')
     const params = 'appid=1058&specialid=0&global_specialid=' + id + '&format=jsonp&srcappid=2919&clientver=20000&clienttime=1586163242519&mid=1586163242519&uuid=1586163242519&dfid=-'
-    let info = await this.createHttp(`https://mobiles.kugou.com/api/v5/special/info_v2?${params}&signature=${signatureParams(params, 5)}`, {
+    let info = await this.createHttp(`https://mobiles.kugou.com/api/v5/special/info_v2?${params}&signature=${signatureParams(params, 'web')}`, {
       headers: {
         mid: '1586163242519',
         Referer: 'https://m3ws.kugou.com/share/index.php',
@@ -592,6 +614,13 @@ export default {
     if (retryNum > 3) return Promise.reject(new Error('link try max num'))
     if (link.includes('#')) link = link.replace(/#.*$/, '')
     if (link.includes('global_collection_id')) return this.getUserListDetail2(link.replace(/^.*?global_collection_id=(\w+)(?:&.*$|#.*$|$)/, '$1'))
+    if (link.includes('gcid_')) {
+      let gcid = link.match(/gcid_\w+/)?.[0]
+      if (gcid) {
+        const global_collection_id = await this.decodeGcid(gcid)
+        if (global_collection_id) return this.getUserListDetail2(global_collection_id)
+      }
+    }
     if (link.includes('chain=')) return this.getUserListDetail3(link.replace(/^.*?chain=(\w+)(?:&.*$|#.*$|$)/, '$1'), page)
     if (link.includes('.html')) {
       if (link.includes('zlist.html')) {
@@ -616,6 +645,13 @@ export default {
     if (location) {
       // console.log(location)
       if (location.includes('global_collection_id')) return this.getUserListDetail2(location.replace(/^.*?global_collection_id=(\w+)(?:&.*$|#.*$|$)/, '$1'))
+      if (location.includes('gcid_')) {
+        let gcid = link.match(/gcid_\w+/)?.[0]
+        if (gcid) {
+          const global_collection_id = await this.decodeGcid(gcid)
+          if (global_collection_id) return this.getUserListDetail2(global_collection_id)
+        }
+      }
       if (location.includes('chain=')) return this.getUserListDetail3(location.replace(/^.*?chain=(\w+)(?:&.*$|#.*$|$)/, '$1'), page)
       if (location.includes('.html')) {
         if (location.includes('zlist.html')) {
@@ -631,7 +667,16 @@ export default {
       // console.log('location', location)
       return this.getUserListDetail(location, page, ++retryNum)
     }
-    if (typeof body == 'string') return this.getUserListDetail2(body.replace(/^[\s\S]+?"global_collection_id":"(\w+)"[\s\S]+?$/, '$1'))
+    if (typeof body == 'string') {
+      let global_collection_id = body.match(/"global_collection_id":"(\w+)"/)?.[1]
+      if (!global_collection_id) {
+        let gcid = body.match(/"encode_gic":"(\w+)"/)?.[1]
+        if (!gcid) gcid = body.match(/"encode_src_gid":"(\w+)"/)?.[1]
+        if (gcid) global_collection_id = await this.decodeGcid(gcid)
+      }
+      if (!global_collection_id) throw new Error('get list error')
+      return this.getUserListDetail2(global_collection_id)
+    }
     if (body.errcode !== 0) return this.getUserListDetail(link, page, ++retryNum)
     return this.getUserListDetailByLink(body, link)
   },
